@@ -60,7 +60,6 @@ function getImageUrl(searchTerm, callback, errorCallback) {
   var searchUrl = 'https://ajax.googleapis.com/ajax/services/search/images' +
     '?v=1.0&q=' + encodeURIComponent(searchTerm);
   var x = new XMLHttpRequest();
-  console.log(searchUrl)
   x.open('GET', searchUrl);
   // The Google image search API responds with JSON, so let Chrome parse it.
   x.responseType = 'json';
@@ -93,12 +92,45 @@ function renderStatus(statusText) {
   document.getElementById('status').textContent = statusText;
 }
 
+function modifyDOM() {
+    //You can play with your DOM here or check URL against your regex
+    document.querySelector(".btn-green").click()
+}
+
+function modifyURL() {
+    //You can play with your DOM here or check URL against your regex
+    let url = document.querySelector(".btn-green").getAttribute("href")
+    console.log(url)
+    return url
+     
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     chrome.tabs.getAllInWindow(null, function (tabs) {
         for (var i = 0; i < tabs.length; i++) {
-            console.log(tabs[i].url)
             if (tabs[i].url.indexOf('novafile.com') > -1) {
-                console.log('somthing')
+                console.log(tabs[i].id)
+                chrome.tabs.executeScript(tabs[i].id, {
+                    code: '(' + modifyDOM + ')();' //argument here is a string but function.toString() returns function's code
+                });
+            }
+        }
+
+        for (var j = 0; j < tabs.length; j++) {
+            if (tabs[j].url.indexOf('novafile.com') > -1) {
+                let tabid = tabs[j].id
+                chrome.tabs.onUpdated.addListener(function (tabid, changeInfo, tab) {
+                    if (changeInfo.status === 'complete') {
+                        console.log('sjddj')
+                        chrome.tabs.executeScript(tabid, {
+                            code: '(' + modifyURL + ')();' //argument here is a string but function.toString() returns function's code
+                        }, (results) => {
+                            //Here we have just the innerHTML and not DOM structure
+                            console.log('Popup script:')
+                            console.log(results);
+                        });
+                    }
+                }); 
             }
         }
     });

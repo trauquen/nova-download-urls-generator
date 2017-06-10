@@ -1,2 +1,3 @@
 # nova-download-urls-generator
-A Google Chrome extension
+**IN DEVELEPMENT**
+A Google Chrome extension to collect download urls.
