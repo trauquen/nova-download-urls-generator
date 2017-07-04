@@ -105,6 +105,8 @@ function modifyURL() {
      
 }
 
+let novaurls = []
+
 document.addEventListener('DOMContentLoaded', function() {
     chrome.tabs.getAllInWindow(null, function (tabs) {
         for (var i = 0; i < tabs.length; i++) {
@@ -119,15 +121,20 @@ document.addEventListener('DOMContentLoaded', function() {
         for (var j = 0; j < tabs.length; j++) {
             if (tabs[j].url.indexOf('novafile.com') > -1) {
                 let tabid = tabs[j].id
+                console.log(j)
                 chrome.tabs.onUpdated.addListener(function (tabid, changeInfo, tab) {
+                    console.log(changeInfo.status)
                     if (changeInfo.status === 'complete') {
-                        console.log('sjddj')
                         chrome.tabs.executeScript(tabid, {
                             code: '(' + modifyURL + ')();' //argument here is a string but function.toString() returns function's code
                         }, (results) => {
                             //Here we have just the innerHTML and not DOM structure
-                            console.log('Popup script:')
-                            console.log(results);
+                            if (novaurls.join('-').indexOf(results) === -1) {
+                                novaurls.push(results)
+                            }
+                            //console.log(novaurls)
+                            renderStatus(novaurls.join('\n') + '***end***');
+                            console.log(novaurls.join('\n'));
                         });
                     }
                 }); 
@@ -136,12 +143,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     getCurrentTabUrl(function (url) {
     // Put the image URL in Google search.
-    renderStatus('Performing Google Image search for ' + url);
+    renderStatus('Performing nova url collection');
 
     getImageUrl(url, function(imageUrl, width, height) {
 
-      renderStatus('Search term: ' + url + '\n' +
-          'Google image search result: ' + imageUrl);
+      //renderStatus('Search term: ' + url + '\n' +
+          //'Google image search result: ' + imageUrl);
       var imageResult = document.getElementById('image-result');
       // Explicitly set the width/height to minimize the number of reflows. For
       // a single image, this does not matter, but if you're going to embed
@@ -153,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
       imageResult.hidden = false;
 
     }, function(errorMessage) {
-      renderStatus('Cannot display image. ' + errorMessage);
+      //renderStatus('Cannot display image. ' + errorMessage);
     });
   });
 });
